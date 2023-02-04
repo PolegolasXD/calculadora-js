@@ -21,7 +21,7 @@ class Calculator {
         }
 
         this.currentOperation = digit;
-        
+        this.updateScreen();
     }
     /* operações da calculadora, *, -, +, /, del, C, Ce*/ 
     processOperation(operation) {
