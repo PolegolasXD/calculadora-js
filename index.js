@@ -1,86 +1,130 @@
-const form = document.getElementById('form-principal')
-const inputUm = document.getElementById('input-1');
-const inputDois = document.getElementById('input-2');
+const previousOperationText = document.querySelector("#previous-operation");
+const currentOperationText = document.querySelector("#current-operation");
+const buttons = document.querySelectorAll("#buttons-container button");
 
-let valorTotal = 0;
+class Calculator {
+    constructor(previousOperationText, currentOperationText) {
+        this.previousOperationText = previousOperationText;
+        this.currentOperationText = currentOperationText;
+        this.currentOperation = "";
+    }
 
-function sum() {
-    let valorTotalSum = parseInt(inputUm.value) + parseInt(inputDois.value);
-    console.log(valorTotalSum);
-    return valorTotal = valorTotalSum;
+    addDigit(digit) {
+        console.log(digit);
+        if (digit === "." && this.currentOperationText.innerText.includes(".")) {
+            return;
+        }
+
+        this.currentOperation = digit;
+        this.updateScreen();
+    }
+
+    processOperation(operation) {
+        if (this.currentOperationText.innerText === "" && operation !== "C") {
+            if (this.previousOperationText.innerText !== "") {
+                this.changeOperation(operation);
+            }
+            return;
+        }
+
+        let operationValue;
+        let previous = +this.previousOperationText.innerText.split(" ")[0];
+        let current = +this.currentOperationText.innerText;
+
+        switch (operation) {
+            case "+":
+                operationValue = previous + current;
+                this.updateScreen(operationValue, operation, current, previous);
+                break;
+            case "-":
+                operationValue = previous - current;
+                this.updateScreen(operationValue, operation, current, previous);
+                break;
+            case "*":
+                operationValue = previous * current;
+                this.updateScreen(operationValue, operation, current, previous);
+                break;
+            case "/":
+                operationValue = previous / current;
+                this.updateScreen(operationValue, operation, current, previous);
+                break;
+            case "DEL":
+                this.processDelOperator();
+                break;
+            case "CE":
+                this.processClearCurrentOperator();
+                break;
+            case "C":
+                this.processClearOperator();
+                break;
+            case "=":
+                this.processEqualOperator();
+                break;
+            default:
+                return;
+        }
+    }
+
+    updateScreen(
+        operationValue = null,
+        operation = null,
+        current = null,
+        previous = null
+    ) {
+        if (operationValue === null) {
+            this.currentOperationText.innerText += this.currentOperation;
+        } else {
+            if (previous === 0) {
+                operationValue = current;
+            }
+            this.previousOperationText.innerText = `${operationValue} ${operation}`;
+            this.currentOperationText.innerText = "";
+        }
+    }
+
+    changeOperation(operation) {
+        const mathOperations = ["*", "-", "+", "/"];
+
+        if (!mathOperations.includes(operation)) {
+            return;
+        }
+
+        this.previousOperationText.innerText =
+            this.previousOperationText.innerText.slice(0, -1) + operation;
+    }
+
+    processDelOperator() {
+        this.currentOperationText.innerText =
+            this.currentOperationText.innerText.slice(0, -1);
+    }
+
+    processClearCurrentOperator() {
+        this.currentOperationText.innerText = "";
+    }
+
+    processClearOperator() {
+        this.currentOperationText.innerText = "";
+        this.previousOperationText.innerText = "";
+    }
+
+    processEqualOperator() {
+        let operation = this.previousOperationText.innerText.split(" ")[1];
+
+        this.processOperation(operation);
+    }
 }
 
-function subtraction() {
-    let valorTotalSubtraction = parseInt(inputUm.value) - parseInt(inputDois.value);
-    console.log(valorTotalSubtraction);
-    return valorTotal = valorTotalSubtraction;
-}
+const calc = new Calculator(previousOperationText, currentOperationText);
 
-function multiplication() {
-    let valorTotalMultiplication = parseInt(inputUm.value) * parseInt(inputDois.value);
-    console.log(valorTotalMultiplication);
-    return valorTotal = valorTotalMultiplication;
-}
+buttons.forEach((btn) => {
+    btn.addEventListener("click", (event) => {
+        const value = event.target.innerText;
 
-function division() {
-    let valorTotalDivision = parseInt(inputUm.value) / parseInt(inputDois.value);
-    console.log(valorTotalDivision);
-    return valorTotal = valorTotalDivision;
-}
-
-function clear() {
-    inputUm.value = "";
-    inputDois.value = "";
-    return valorTotal = 0;
-}
-
-function equal() {
-    console.log(valorTotal)
-    const element = document.getElementById('div-receber').innerHTML = `o valor da operação é ${valorTotal}`;
-}
-
-
-/*configurações botoes*/ 
-
-// const buttonUm = document.getElementById('number-1')
-// const buttonDois = document.getElementById('number-2')
-// const buttonTres = document.getElementById('number-3')
-// const buttonQuatro = document.getElementById('number-4')
-// const buttonCinco = document.getElementById('number-5')
-// const buttonSeis = document.getElementById('number-6')
-// const buttonSete = document.getElementById('number-7')
-// const buttonOito = document.getElementById('number-8')
-// const buttonNove = document.getElementById('number-9')
-// const buttonZero = document.getElementById('number-0')
-
-
-// function selectNumberUm(){
-//     inputUm.value = 1;
-// }
-// buttonUm.addEventListener('click', selectNumberUm);
-// buttonDois.addEventListener('click', selectNumberUm);
-// buttonTres.addEventListener('click', selectNumberUm);
-// buttonQuatro.addEventListener('click', selectNumberUm);
-// buttonUm.addEventListener('click', selectNumberUm);
-// buttonUm.addEventListener('click', selectNumberUm);
-// buttonUm.addEventListener('click', selectNumberUm);
-// buttonUm.addEventListener('click', selectNumberUm);
-// buttonUm.addEventListener('click', selectNumberUm);
-// buttonUm.addEventListener('click', selectNumberUm);
-
-
-/*-------------------------------------------------------------------------------------------------------------*/
-const buttonSum = document.querySelector('#sum-operation')
-const buttonSubtraction = document.querySelector('#subtraction-operation')
-const buttonMultiplication = document.querySelector('#multiplication-operation')
-const buttonDivision = document.querySelector('#division-operation')
-const buttonClear = document.querySelector('#clear-operation')
-const buttonEqual = document.querySelector('#equal-operation')
-
-buttonSum.addEventListener('click', sum);
-buttonSubtraction.addEventListener('click', subtraction);
-buttonMultiplication.addEventListener('click', multiplication);
-buttonDivision.addEventListener('click', division);
-buttonClear.addEventListener('click', clear);
-buttonEqual.addEventListener('click', equal);
-
+        if (+value >= 0 || value === ".") {
+            console.log(value);
+            calc.addDigit(value);
+        } else {
+            calc.processOperation(value);
+        }
+    });
+});
